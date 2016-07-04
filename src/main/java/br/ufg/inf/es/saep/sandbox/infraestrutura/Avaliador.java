@@ -16,9 +16,9 @@ public class Avaliador implements AvaliaRegraService {
 
     @Override
     public Valor avaliaRegra(Regra regra, Map<String, Valor> contexto, List<Avaliavel> relatos) {
-        switch (regra.getTipoRegra()) {
-            case Regra.PONTOS_POR_RELATO:
-                float pontosPorRelato = regra.getPontosPorRelato();
+        switch (regra.getTipo()) {
+            case Regra.PONTOS:
+                float pontosPorRelato = regra.getPontosPorItem();
                 float total = pontosPorRelato * relatos.size();
                 total = ajustaLimites(regra, total);
 
@@ -67,7 +67,7 @@ public class Avaliador implements AvaliaRegraService {
             try {
                 somatorio += exp.eval().floatValue();
             } catch (RuntimeException rex) {
-                throw new SaepException("Falha na avalição de regra: " + rex.getMessage());
+                throw new AvaliacaoRegraException("Falha na avalição de regra: " + rex.getMessage());
             }
         }
 
@@ -95,7 +95,7 @@ public class Avaliador implements AvaliaRegraService {
             BigDecimal valor = exp.eval();
             return valor.floatValue();
         } catch (RuntimeException re) {
-            throw new SaepException("Avaliação de expressão: " + re.getMessage());
+            throw new AvaliacaoRegraException("Avaliação de expressão: " + re.getMessage());
         }
     }
 

@@ -4,6 +4,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.mongodb.client.model.Filters.eq;
 
 public class MongoPersistencia implements IPersistencia {
@@ -40,6 +43,16 @@ public class MongoPersistencia implements IPersistencia {
 
     public void deletaJSON(String collection, String id) {
         mongoDatabase.getCollection(collection).deleteOne(eq("id", id));
+
+    }
+
+    public List<String> pegaIdsCollection(String collection, String id) {
+        List<String> listaIds = new ArrayList<String>();
+
+        for (Document resolucao : mongoDatabase.getCollection(collection).find()) {
+            listaIds.add(resolucao.getString(id));
+        }
+        return listaIds;
     }
 
 }

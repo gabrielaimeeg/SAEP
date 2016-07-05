@@ -16,7 +16,7 @@ public class ParecerPersistencia implements ParecerRepository {
         iPersistencia.iniciaConexaoBD();
     }
 
-    public void limpaBase(String collection) {
+    private void limpaBase(String collection) {
         iPersistencia.limpaBase(collection);
     }
 
@@ -44,7 +44,7 @@ public class ParecerPersistencia implements ParecerRepository {
 
     @Override
     public void removeNota(Avaliavel original) {
-        // TODO: 03/07/2016
+
     }
 
     @Override

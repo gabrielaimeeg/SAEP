@@ -16,7 +16,7 @@ public class ParecerPersistenciaTest {
     @Before
     public void limpaBase() {
         parecerPersistencia = new ParecerPersistencia();
-        parecerPersistencia.limpaBase("parecerCollection");
+       // parecerPersistencia.limpaBase("parecerCollection");
     }
 
     @Test

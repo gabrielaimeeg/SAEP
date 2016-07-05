@@ -2,6 +2,8 @@ package br.ufg.inf.es.saep.sandbox.persistencia;
 
 import org.bson.Document;
 
+import java.util.List;
+
 public interface IPersistencia {
     void iniciaConexaoBD();
 
@@ -14,5 +16,7 @@ public interface IPersistencia {
     void deletaJSON(String collection, String id);
 
     void limpaBase(String collection);
+
+    List<String> pegaIdsCollection(String collection, String id);
 
 }

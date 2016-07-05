@@ -2,7 +2,6 @@ package test.persistencia;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
 import br.ufg.inf.es.saep.sandbox.persistencia.ParecerPersistencia;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,50 +21,25 @@ public class ParecerPersistenciaTest {
 
     @Test
     public void testaAdicionarNota() {
-        ParecerPersistencia parecerPersistencia = new ParecerPersistencia();
 
-        List<String> listaRadocId = new ArrayList<>();
-        listaRadocId.add("1");
-        listaRadocId.add("2");
-        listaRadocId.add("3");
+//
+//        Parecer parecer = new Parecer(
+//                "1",
+//                "CONSUNI 2013/2",
+//                listaRadocId,
+//                listaPontuacoes,
+//                "fundamentacao",
+//                listaNota
+//        );
 
-        List<Pontuacao> listaPontuacoes = new ArrayList<>();
-        listaPontuacoes.add(new Pontuacao("nomePontuacao1", new Valor("valor1")));
-        listaPontuacoes.add(new Pontuacao("nomePontuacao2", new Valor("valor2")));
+//        parecerPersistencia.persisteParecer(parecer);
+//
+//
+//        Map<String, Valor> valores3 = new HashMap<>();
+//        valores1.put("Publicacao artigo", new Valor(3));
+//        parecerPersistencia.adicionaNota("1", new Nota(new Relato("tip3", valores3), new Relato("tip3", valores3), "testano"));
 
-        List<Nota> listaNota = new ArrayList<>();
-
-        Map<String, Valor> valores1 = new HashMap<>();
-        valores1.put("Publicacao livro", new Valor(10));
-        valores1.put("Publicacao livro", new Valor("Editora"));
-        valores1.put("Publicacao livro", new Valor(3));
-
-        Map<String, Valor> valores2 = new HashMap<>();
-        valores1.put("Publicacao livro", new Valor(2));
-        valores1.put("Publicacao livro", new Valor(7));
-
-        Relato relato1 = new Relato("tipo1", valores1);
-        Relato relato2 = new Relato("tipo2", valores2);
-
-        listaNota.add(new Nota(relato1, relato2, "Porque eu quis."));
-
-        Parecer parecer = new Parecer(
-                "1",
-                "CONSUNI 2013/2",
-                listaRadocId,
-                listaPontuacoes,
-                "fundamentacao",
-                listaNota
-        );
-
-        parecerPersistencia.persisteParecer(parecer);
-
-
-        Map<String, Valor> valores3 = new HashMap<>();
-        valores1.put("Publicacao artigo", new Valor(3));
-        parecerPersistencia.adicionaNota("1", new Nota(new Relato("tip3", valores3), new Relato("tip3", valores3), "testano"));
-
-       // Assert.assertEquals(parecerPersistencia.byId("1"), parecer);
+        // Assert.assertEquals(parecerPersistencia.byId("1"), parecer);
 
     }
 
@@ -104,5 +78,55 @@ public class ParecerPersistenciaTest {
 
     }
 
+//    public void criaParecer() {
+//        criaListaRadocID("1", "2", "3");
+//        criaPontuacao("nomePontuacao1", "valor1", "nomePontuacao2", "valor2");
+//        criaRelato("Publicacao de Artigo",
+//                )
+//
+//    }
+
+    private List<String> criaListaRadocID(String... valores) {
+        List<String> listaRadocId = new ArrayList<>();
+
+        for (String i : valores) {
+            listaRadocId.add(i);
+        }
+
+        return listaRadocId;
+    }
+
+    private List<Pontuacao> criaPontuacao(String... valores) {
+
+        if (valores.length % 2 == 0) {
+            List<Pontuacao> listaPontuacoes = new ArrayList<>();
+
+            for (int i = 0; i < valores.length - 1; i++) {
+                listaPontuacoes.add(new Pontuacao(valores[i], new Valor(valores[i + 1])));
+                i++;
+            }
+
+            return listaPontuacoes;
+        } else {
+            return null;
+        }
+    }
+
+//    private Nota criaNota() {
+//
+//    }
+//
+//
+//    private Valor criaValor() {
+//        List<Nota> listaNota = new ArrayList<>();
+//        listaNota.add(new Nota(criaRelato(), criaRelato(), "Porque eu quis."));
+//    }
+
+    private Relato criaRelato(String tipoRelato, Valor valor) {
+        Map<String, Valor> valores = new HashMap<>();
+        valores.put(tipoRelato, valor);
+        return new Relato(tipoRelato, valores);
+
+    }
 
 }

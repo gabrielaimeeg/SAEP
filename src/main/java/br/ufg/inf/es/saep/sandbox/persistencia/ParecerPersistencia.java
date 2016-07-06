@@ -7,22 +7,22 @@ import org.bson.Document;
 import java.util.List;
 
 public class ParecerPersistencia implements ParecerRepository {
-    IPersistencia iPersistencia = new MongoPersistencia();
+    IPersistencia mongoPersistencia = MongoPersistencia.getInstance();
     static Gson gson = new Gson();
     String parecerCollection = "parecerCollection";
     String radocCollection = "radocCollection";
 
     public ParecerPersistencia() {
-        iPersistencia.iniciaConexaoBD();
+        mongoPersistencia.iniciaConexaoBD();
     }
 
     private void limpaBase(String collection) {
-        iPersistencia.limpaBase(collection);
+        mongoPersistencia.limpaBase(collection);
     }
 
     @Override
     public void adicionaNota(String parecer, Nota nota) {
-        Document document = iPersistencia.buscaJSON(parecerCollection, parecer);
+        Document document = mongoPersistencia.buscaJSON(parecerCollection, parecer);
         Parecer parecerAntigaInstacia = gson.fromJson(document.toJson(), Parecer.class);
 
         List<Nota> listaNotas = parecerAntigaInstacia.getNotas();
@@ -39,7 +39,7 @@ public class ParecerPersistencia implements ParecerRepository {
 
         String json = gson.toJson(parecerNovaInstancia);
 
-        iPersistencia.atualizaJSON(parecerCollection, "id", parecer, json);
+        mongoPersistencia.atualizaJSON(parecerCollection, "id", parecer, json);
     }
 
     @Override
@@ -50,12 +50,12 @@ public class ParecerPersistencia implements ParecerRepository {
     @Override
     public void persisteParecer(Parecer parecer) {
         String json = gson.toJson(parecer);
-        iPersistencia.persisteJSON(parecerCollection, json);
+        mongoPersistencia.persisteJSON(parecerCollection, json);
     }
 
     @Override
     public void atualizaFundamentacao(String parecer, String fundamentacao) {
-        Document document = iPersistencia.buscaJSON(parecerCollection, parecer);
+        Document document = mongoPersistencia.buscaJSON(parecerCollection, parecer);
         Parecer parecerAntigaInstacia = gson.fromJson(document.toJson(), Parecer.class);
 
         Parecer parecerNovaInstancia = new Parecer(
@@ -69,35 +69,35 @@ public class ParecerPersistencia implements ParecerRepository {
 
         String json = gson.toJson(parecerNovaInstancia);
 
-        iPersistencia.atualizaJSON(parecerCollection, "id", parecer, json);
+        mongoPersistencia.atualizaJSON(parecerCollection, "id", parecer, json);
     }
 
     @Override
     public Parecer byId(String id) {
-        Document document = iPersistencia.buscaJSON(parecerCollection, id);
-        return gson.fromJson(document.toJson(), Parecer.class);
+        Document document = mongoPersistencia.buscaJSON(parecerCollection, id);
+        return gson.fromJson(document.toJson(), Parecer.class); // TODO: 05/07/2016  
     }
 
     @Override
     public void removeParecer(String id) {
-        iPersistencia.deletaJSON(parecerCollection, id);
+        mongoPersistencia.deletaJSON(parecerCollection, id);
     }
 
     @Override
     public Radoc radocById(String identificador) {
-        Document document = iPersistencia.buscaJSON(radocCollection, identificador);
+        Document document = mongoPersistencia.buscaJSON(radocCollection, identificador);
         return gson.fromJson(document.toJson(), Radoc.class);
     }
 
     @Override
     public String persisteRadoc(Radoc radoc) {
         String json = gson.toJson(radoc);
-        iPersistencia.persisteJSON(radocCollection, json);
+        mongoPersistencia.persisteJSON(radocCollection, json);
         return null;
     }
 
     @Override
     public void removeRadoc(String identificador) {
-        iPersistencia.deletaJSON(radocCollection, identificador);
+        mongoPersistencia.deletaJSON(radocCollection, identificador);
     }
 }

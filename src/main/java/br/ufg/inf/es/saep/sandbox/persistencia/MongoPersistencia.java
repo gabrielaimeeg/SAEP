@@ -13,6 +13,15 @@ public class MongoPersistencia implements IPersistencia {
     String nomeBanco = "saep";
     MongoDatabase mongoDatabase;
 
+    private static MongoPersistencia instance;
+
+    public static synchronized MongoPersistencia getInstance() {
+        if (instance == null)
+            instance = new MongoPersistencia();
+
+        return instance;
+    }
+
     @Override
     public void iniciaConexaoBD() {
         MongoClient mongoClient = new MongoClient();
@@ -43,7 +52,6 @@ public class MongoPersistencia implements IPersistencia {
 
     public void deletaJSON(String collection, String id) {
         mongoDatabase.getCollection(collection).deleteOne(eq("id", id));
-
     }
 
     public List<String> pegaIdsCollection(String collection, String id) {

@@ -9,25 +9,26 @@ import org.bson.Document;
 import java.util.List;
 
 public class ResolucaoPersistencia implements ResolucaoRepository {
-    IPersistencia iPersistencia = new MongoPersistencia();
+
+    IPersistencia mongoPersistencia = MongoPersistencia.getInstance();
     static Gson gson = new Gson();
     String resolucaoCollection = "resolucaoCollection";
     String tipoCollection = "tipoCollection";
 
     private void limpaBase(String collection) {
-        iPersistencia.limpaBase(collection);
+        mongoPersistencia.limpaBase(collection);
     }
 
     @Override
     public Resolucao byId(String id) {
-        Document document = iPersistencia.buscaJSON(resolucaoCollection, id);
+        Document document = mongoPersistencia.buscaJSON(resolucaoCollection, id);
         return gson.fromJson(document.toJson(), Resolucao.class);
     }
 
     @Override
     public String persiste(Resolucao resolucao) {
         String json = gson.toJson(resolucao);
-        iPersistencia.persisteJSON(resolucaoCollection, json);
+        mongoPersistencia.persisteJSON(resolucaoCollection, json);
         return resolucao.getId();
     }
 
@@ -35,7 +36,7 @@ public class ResolucaoPersistencia implements ResolucaoRepository {
     public boolean remove(String identificador) {
         boolean result = false;
         try {
-            iPersistencia.deletaJSON(tipoCollection, identificador);
+            mongoPersistencia.deletaJSON(tipoCollection, identificador);
             result = true;
         } catch (Exception e) {
             e.getStackTrace();
@@ -45,28 +46,29 @@ public class ResolucaoPersistencia implements ResolucaoRepository {
 
     @Override
     public List<String> resolucoes() {
-        return iPersistencia.pegaIdsCollection(resolucaoCollection, "id");
+        return mongoPersistencia.pegaIdsCollection(resolucaoCollection, "id");
     }
 
     @Override
     public void persisteTipo(Tipo tipo) {
         String json = gson.toJson(tipo);
-        iPersistencia.persisteJSON(tipoCollection, json);
+        mongoPersistencia.persisteJSON(tipoCollection, json);
     }
 
     @Override
     public void removeTipo(String codigo) {
-        iPersistencia.deletaJSON(tipoCollection, codigo);
+        mongoPersistencia.deletaJSON(tipoCollection, codigo);
     }
 
     @Override
     public Tipo tipoPeloCodigo(String codigo) {
-        Document document = iPersistencia.buscaJSON(tipoCollection, codigo);
+        Document document = mongoPersistencia.buscaJSON(tipoCollection, codigo);
         return gson.fromJson(document.toJson(), Tipo.class);
     }
 
     @Override
     public List<Tipo> tiposPeloNome(String nome) {
         return null;
+
     }
 }

@@ -2,18 +2,23 @@ package br.ufg.inf.es.saep.sandbox.persistencia;
 
 import br.ufg.inf.es.saep.sandbox.dominio.*;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.bson.Document;
 
 import java.util.List;
 
 public class ParecerPersistencia implements ParecerRepository {
     IPersistencia mongoPersistencia = MongoPersistencia.getInstance();
-    static Gson gson = new Gson();
+    GsonBuilder gsonBuilder;
+    static Gson gson;
     String parecerCollection = "parecerCollection";
     String radocCollection = "radocCollection";
 
     public ParecerPersistencia() {
         mongoPersistencia.iniciaConexaoBD();
+        gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Nota.class, new SerializadorNota());
+        gson = gsonBuilder.create();
     }
 
     private void limpaBase(String collection) {
@@ -43,7 +48,7 @@ public class ParecerPersistencia implements ParecerRepository {
     }
 
     @Override
-    public void removeNota(Avaliavel original) {
+    public void removeNota(String id, Avaliavel original) {
 
     }
 

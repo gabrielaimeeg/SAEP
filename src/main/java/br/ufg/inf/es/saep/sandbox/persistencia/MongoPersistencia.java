@@ -45,7 +45,7 @@ public class MongoPersistencia implements IPersistencia {
 
     @Override
     public void atualizaJSON(String collection, String identificadorObjeto, String valorIdentificador, String json) {
-        mongoDatabase.getCollection(collection).updateOne(
+        mongoDatabase.getCollection(collection).replaceOne(
                 eq(identificadorObjeto, valorIdentificador),
                 Document.parse(json));
     }

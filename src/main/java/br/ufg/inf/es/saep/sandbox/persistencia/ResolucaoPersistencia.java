@@ -21,7 +21,7 @@ public class ResolucaoPersistencia implements ResolucaoRepository {
 
     @Override
     public Resolucao byId(String id) {
-        Document document = mongoPersistencia.buscaJSON(resolucaoCollection, id);
+        Document document = mongoPersistencia.buscaJSON(resolucaoCollection, "id", id);
         return gson.fromJson(document.toJson(), Resolucao.class);
     }
 
@@ -36,7 +36,7 @@ public class ResolucaoPersistencia implements ResolucaoRepository {
     public boolean remove(String identificador) {
         boolean result = false;
         try {
-            mongoPersistencia.deletaJSON(tipoCollection, identificador);
+            mongoPersistencia.deletaJSON(tipoCollection, "id", identificador);
             result = true;
         } catch (Exception e) {
             e.getStackTrace();
@@ -57,12 +57,12 @@ public class ResolucaoPersistencia implements ResolucaoRepository {
 
     @Override
     public void removeTipo(String codigo) {
-        mongoPersistencia.deletaJSON(tipoCollection, codigo);
+        mongoPersistencia.deletaJSON(tipoCollection, "id", codigo);
     }
 
     @Override
     public Tipo tipoPeloCodigo(String codigo) {
-        Document document = mongoPersistencia.buscaJSON(tipoCollection, codigo);
+        Document document = mongoPersistencia.buscaJSON(tipoCollection, "id", codigo);
         return gson.fromJson(document.toJson(), Tipo.class);
     }
 

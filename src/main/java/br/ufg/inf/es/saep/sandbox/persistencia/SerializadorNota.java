@@ -5,51 +5,38 @@ import br.ufg.inf.es.saep.sandbox.dominio.Nota;
 import br.ufg.inf.es.saep.sandbox.dominio.Pontuacao;
 import br.ufg.inf.es.saep.sandbox.dominio.Relato;
 import com.google.gson.*;
+import com.mongodb.util.JSON;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
-public class SerializadorNota implements JsonSerializer<Nota>, JsonDeserializer<Nota> {
+public class SerializadorNota implements JsonDeserializer<Nota> {
     static Gson gson = new Gson();
 
     @Override
-    public JsonElement serialize(Nota nota, Type type, JsonSerializationContext jsonSerializationContext) {
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("justificativa", nota.getJustificativa());
-        adicionaNomeDaClasseDoAvaliavel(jsonObject, "classeAvaliavelOriginal", nota.getItemOriginal());
-        jsonObject.add("original", gson.toJsonTree(nota.getItemOriginal()));
-        adicionaNomeDaClasseDoAvaliavel(jsonObject, "classeAvaliavelNovo", nota.getItemNovo());
-        jsonObject.add("novo", gson.toJsonTree(nota.getItemNovo()));
-
-        return jsonObject;
-    }
-
-    private void adicionaNomeDaClasseDoAvaliavel(JsonObject jsonObject, String chave, Avaliavel avaliavel) {
-        if (avaliavel instanceof Pontuacao) {
-            jsonObject.addProperty(chave, "Pontuacao");
-        } else {
-            jsonObject.addProperty(chave, "Relato");
-        }
-
-    }
-
-    @Override
     public Nota deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
 
-        Avaliavel original = recuperaAvaliavelPorTipo(jsonObject, "classeAvaliavelOriginal", "original");
-        Avaliavel novo = recuperaAvaliavelPorTipo(jsonObject, "classeAvaliavelNovo", "novo");
-        String justificativa = jsonObject.get("justificativa").getAsString();
-        Nota nota = new Nota(original, novo, justificativa);
+        String justificativa = jsonElement.getAsJsonObject().get("justificativa").getAsString();
 
-        return nota;
+        JsonObject novoJsonObject = jsonElement.getAsJsonObject().get("novo").getAsJsonObject();
+        JsonObject originalJsonObject = jsonElement.getAsJsonObject().get("original").getAsJsonObject();
+
+        Avaliavel original = verificaInstaciaAvaliavel(novoJsonObject);
+        Avaliavel novo = verificaInstaciaAvaliavel(originalJsonObject);
+
+        return new Nota(
+                original,
+                novo,
+                justificativa
+        );
     }
 
-    private Avaliavel recuperaAvaliavelPorTipo(JsonObject jsonObject, String tipoClasse, String chave) {
-        if (jsonObject.get(tipoClasse).getAsString().equals("Relato")) {
-            return gson.fromJson(jsonObject.get(chave).getAsJsonObject(), Relato.class);
+    private Avaliavel verificaInstaciaAvaliavel(JsonObject jsonObject){
+        if(jsonObject.has("valor")){
+            return gson.fromJson(jsonObject, Pontuacao.class);
         } else {
-            return gson.fromJson(jsonObject.get(chave).getAsJsonObject(), Pontuacao.class);
+            return gson.fromJson(jsonObject, Relato.class);
         }
     }
+
 }

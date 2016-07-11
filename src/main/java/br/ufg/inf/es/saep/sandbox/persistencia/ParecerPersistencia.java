@@ -27,7 +27,7 @@ public class ParecerPersistencia implements ParecerRepository {
 
     @Override
     public void adicionaNota(String parecer, Nota nota) {
-        Document document = mongoPersistencia.buscaJSON(parecerCollection, parecer);
+        Document document = mongoPersistencia.buscaJSON(parecerCollection, "id", parecer);
         Parecer parecerAntigaInstacia = gson.fromJson(document.toJson(), Parecer.class);
 
         List<Nota> listaNotas = parecerAntigaInstacia.getNotas();
@@ -49,7 +49,10 @@ public class ParecerPersistencia implements ParecerRepository {
 
     @Override
     public void removeNota(String id, Avaliavel original) {
+        Document parecer = mongoPersistencia.buscaJSON(parecerCollection, "id", id);
+        Document filtro = Document.parse(gson.toJson(new Document("$pull", new Document("notas", new Document("original", original)))));
 
+        mongoPersistencia.atualizaDocumentUsandoFiltro(parecerCollection, parecer, filtro);
     }
 
     @Override
@@ -60,7 +63,7 @@ public class ParecerPersistencia implements ParecerRepository {
 
     @Override
     public void atualizaFundamentacao(String parecer, String fundamentacao) {
-        Document document = mongoPersistencia.buscaJSON(parecerCollection, parecer);
+        Document document = mongoPersistencia.buscaJSON(parecerCollection, "id", parecer);
         Parecer parecerAntigaInstacia = gson.fromJson(document.toJson(), Parecer.class);
 
         Parecer parecerNovaInstancia = new Parecer(
@@ -79,18 +82,18 @@ public class ParecerPersistencia implements ParecerRepository {
 
     @Override
     public Parecer byId(String id) {
-        Document document = mongoPersistencia.buscaJSON(parecerCollection, id);
-        return gson.fromJson(document.toJson(), Parecer.class); // TODO: 05/07/2016  
+        Document document = mongoPersistencia.buscaJSON(parecerCollection, "id", id);
+        return gson.fromJson(gson.toJson(document), Parecer.class);
     }
 
     @Override
     public void removeParecer(String id) {
-        mongoPersistencia.deletaJSON(parecerCollection, id);
+        mongoPersistencia.deletaJSON(parecerCollection, "id", id);
     }
 
     @Override
     public Radoc radocById(String identificador) {
-        Document document = mongoPersistencia.buscaJSON(radocCollection, identificador);
+        Document document = mongoPersistencia.buscaJSON(radocCollection, "id", identificador);
         return gson.fromJson(document.toJson(), Radoc.class);
     }
 
@@ -103,6 +106,6 @@ public class ParecerPersistencia implements ParecerRepository {
 
     @Override
     public void removeRadoc(String identificador) {
-        mongoPersistencia.deletaJSON(radocCollection, identificador);
+        mongoPersistencia.deletaJSON(radocCollection, "id", identificador);
     }
 }

@@ -4,8 +4,6 @@ import br.ufg.inf.es.saep.sandbox.dominio.*;
 import br.ufg.inf.es.saep.sandbox.persistencia.IPersistencia;
 import br.ufg.inf.es.saep.sandbox.persistencia.MongoPersistencia;
 import br.ufg.inf.es.saep.sandbox.persistencia.ParecerPersistencia;
-import com.google.gson.Gson;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,9 +16,7 @@ import java.util.Map;
 public class ParecerPersistenciaTest {
     IPersistencia banco = new MongoPersistencia();
     ParecerPersistencia parecerPersistencia = new ParecerPersistencia();
-    static Gson gson = new Gson();
-
-    String json = "{\"id\":\"1\",\"resolucao\":\"2\",\"radocs\":[\"1\",\"2\",\"3\"],\"pontuacoes\":[{\"atributo\":\"nomePontuacao1\",\"valor\":{\"real\":0.0,\"logico\":false,\"string\":\"valor1\"}},{\"atributo\":\"nomePontuacao2\",\"valor\":{\"real\":0.0,\"logico\":false,\"string\":\"valor2\"}}],\"fundamentacao\":\"fundamentação aqui\",\"notas\":[{\"original\":{\"tipo\":\"tipoRelato1\",\"valores\":{\"tipoRelato1\":{\"real\":0.0,\"logico\":false,\"string\":\"teste2\"}}},\"novo\":{\"tipo\":\"tipoRelato2\",\"valores\":{\"tipoRelato2\":{\"real\":0.0,\"logico\":false,\"string\":\"teste2\"}}},\"justificativa\":\"Porque eu quis.\"}]}";
+    String nomeCollection = "parecerCollection";
 
     public ParecerPersistenciaTest() {
         banco.iniciaConexaoBD();
@@ -28,7 +24,7 @@ public class ParecerPersistenciaTest {
 
     @Before
     public void limpaBase() {
-        banco.limpaBase("parecerCollectionTeste");
+        banco.limpaBase(nomeCollection);
     }
 
 
@@ -46,6 +42,15 @@ public class ParecerPersistenciaTest {
 
     @Test
     public void testaRemoveNota() {
+        Parecer parecer = criaParecer();
+        int quantidadeNotasAntes = parecer.getNotas().size();
+
+        Nota nota = parecer.getNotas().get(0);
+        parecerPersistencia.persisteParecer(parecer);
+        parecerPersistencia.removeNota(parecer.getId(), nota.getItemOriginal());
+        int quantidadeNotasDepois = parecerPersistencia.byId(parecer.getId()).getNotas().size();
+
+        Assert.assertEquals(quantidadeNotasAntes - 1, quantidadeNotasDepois);
 
     }
 
@@ -54,8 +59,7 @@ public class ParecerPersistenciaTest {
         Parecer parecer = criaParecer();
         parecerPersistencia.persisteParecer(parecer);
 
-        banco.persisteJSON("parecerCollectionTeste", gson.toJson(parecer));
-        Assert.assertTrue(banco.buscaJSON("parecerCollectionTeste", "1").get("id").equals("1"));
+        Assert.assertTrue(banco.buscaJSON(nomeCollection, "id", "1").get("id").equals("1"));
     }
 
     @Test
@@ -71,11 +75,10 @@ public class ParecerPersistenciaTest {
 
     @Test
     public void testaRemoveParecer() {
-//        parecerPersistencia.persisteParecer(criaParecer());
-//        parecerPersistencia.removeParecer("1");
-//
-//        Assert.assertEquals(null, parecerPersistencia.byId("1"));
+        parecerPersistencia.persisteParecer(criaParecer());
+        parecerPersistencia.removeParecer("1");
 
+        Assert.assertNull(parecerPersistencia.byId("1"));
     }
 
     @Test

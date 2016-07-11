@@ -9,14 +9,16 @@ public interface IPersistencia {
 
     void persisteJSON(String collection, String json);
 
-    Document buscaJSON(String collection, String id);
+    Document buscaJSON(String collection, String tipoIdentificador, String valorIdentificador);
 
     void atualizaJSON(String collection, String identificadorObjeto, String valorIdentificador, String json);
 
-    void deletaJSON(String collection, String id);
+    void deletaJSON(String collection, String tipoIdentificador, String valorIdentificador);
 
     void limpaBase(String collection);
 
-    List<String> pegaIdsCollection(String collection, String id);
+    void atualizaDocumentUsandoFiltro(String collection, Document parecer, Document filtro);
+
+    List<String> pegaIdsCollection(String collection, String valorIdentificador);
 
 }

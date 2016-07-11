@@ -32,6 +32,7 @@ public class MongoPersistencia implements IPersistencia {
         mongoDatabase.getCollection(collection).drop();
     }
 
+
     @Override
     public void persisteJSON(String collection, String json) {
         Document document = Document.parse(json);
@@ -39,8 +40,8 @@ public class MongoPersistencia implements IPersistencia {
     }
 
     @Override
-    public Document buscaJSON(String collection, String id) {
-        return mongoDatabase.getCollection(collection).find(eq("id", id)).first();
+    public Document buscaJSON(String collection, String tipoIdentificador, String valorIdentificador) {
+        return mongoDatabase.getCollection(collection).find(eq(tipoIdentificador, valorIdentificador)).first();
     }
 
     @Override
@@ -50,15 +51,21 @@ public class MongoPersistencia implements IPersistencia {
                 Document.parse(json));
     }
 
-    public void deletaJSON(String collection, String id) {
-        mongoDatabase.getCollection(collection).deleteOne(eq("id", id));
+    @Override
+    public void deletaJSON(String collection, String tipoIdentificador, String valorIdentificador) {
+        mongoDatabase.getCollection(collection).deleteOne(eq(tipoIdentificador, valorIdentificador));
     }
 
-    public List<String> pegaIdsCollection(String collection, String id) {
+    @Override
+    public void atualizaDocumentUsandoFiltro(String collection, Document parecer, Document filtro) {
+        mongoDatabase.getCollection(collection).updateOne(parecer, filtro);
+    }
+
+    public List<String> pegaIdsCollection(String collection, String valorIdentificador) {
         List<String> listaIds = new ArrayList<String>();
 
         for (Document resolucao : mongoDatabase.getCollection(collection).find()) {
-            listaIds.add(resolucao.getString(id));
+            listaIds.add(resolucao.getString(valorIdentificador));
         }
         return listaIds;
     }

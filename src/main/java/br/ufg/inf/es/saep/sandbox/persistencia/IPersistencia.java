@@ -7,18 +7,20 @@ import java.util.List;
 public interface IPersistencia {
     void iniciaConexaoBD();
 
-    void persisteJSON(String collection, String json);
+    void persiste(String collection, String json);
 
-    Document buscaJSON(String collection, String tipoIdentificador, String valorIdentificador);
+    Document busca(String collection, String tipoIdentificador, String valorIdentificador);
 
-    void atualizaJSON(String collection, String identificadorObjeto, String valorIdentificador, String json);
+    void atualiza(String collection, String identificadorObjeto, String valorIdentificador, String json);
 
-    void deletaJSON(String collection, String tipoIdentificador, String valorIdentificador);
+    void deleta(String collection, String tipoIdentificador, String valorIdentificador);
 
     void limpaBase(String collection);
 
     void atualizaDocumentUsandoFiltro(String collection, Document parecer, Document filtro);
 
-    List<String> pegaIdsCollection(String collection, String valorIdentificador);
+    List<String> listaValoresDeCollection(String collection, String valorIdentificador);
+
+    Iterable<Document> encontraTodosDocumentsPorFiltro(String collection, String identificadorValor, String identificadorNome);
 
 }

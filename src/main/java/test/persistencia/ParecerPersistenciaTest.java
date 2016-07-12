@@ -16,7 +16,8 @@ import java.util.Map;
 public class ParecerPersistenciaTest {
     IPersistencia banco = new MongoPersistencia();
     ParecerPersistencia parecerPersistencia = new ParecerPersistencia();
-    String nomeCollection = "parecerCollection";
+    String nomeCollectionParecer = "parecerCollection";
+    String nomeCollectionRadoc = "radocCollection";
 
     public ParecerPersistenciaTest() {
         banco.iniciaConexaoBD();
@@ -24,7 +25,8 @@ public class ParecerPersistenciaTest {
 
     @Before
     public void limpaBase() {
-        banco.limpaBase(nomeCollection);
+        banco.limpaBase(nomeCollectionParecer);
+        banco.limpaBase(nomeCollectionRadoc);
     }
 
 
@@ -59,7 +61,7 @@ public class ParecerPersistenciaTest {
         Parecer parecer = criaParecer();
         parecerPersistencia.persisteParecer(parecer);
 
-        Assert.assertTrue(banco.buscaJSON(nomeCollection, "id", "1").get("id").equals("1"));
+        Assert.assertTrue(banco.busca(nomeCollectionParecer, "id", "1").get("id").equals("1"));
     }
 
     @Test
@@ -83,20 +85,30 @@ public class ParecerPersistenciaTest {
 
     @Test
     public void testaRadocById() {
+        Radoc radocDesejado = criaRadoc("1");
+        Radoc radocBuscado;
+        parecerPersistencia.persisteRadoc(radocDesejado);
+        radocBuscado = parecerPersistencia.radocById("1");
+
+        Assert.assertEquals(radocDesejado.getId(), radocBuscado.getId());
 
     }
 
     @Test
     public void testaPersisteRadoc() {
-
+        parecerPersistencia.persisteRadoc(criaRadoc("1"));
+        Assert.assertTrue(banco.busca(nomeCollectionRadoc, "id", "1").get("id").equals("1"));
     }
 
     @Test
     public void testaRemoveRadoc() {
+        parecerPersistencia.persisteRadoc(criaRadoc("1"));
+        parecerPersistencia.removeRadoc("1");
 
+        Assert.assertNull(parecerPersistencia.radocById("1"));
     }
 
-    public Parecer criaParecer() {
+    private Parecer criaParecer() {
         return new Parecer(
                 "1",
                 "2",
@@ -157,4 +169,10 @@ public class ParecerPersistenciaTest {
 
     }
 
+    private Radoc criaRadoc(String id) {
+        List<Relato> listaRelato = new ArrayList<>();
+        listaRelato.add(criaRelato("Relato1"));
+        listaRelato.add(criaRelato("Relato2"));
+        return new Radoc(id, 2016, listaRelato);
+    }
 }

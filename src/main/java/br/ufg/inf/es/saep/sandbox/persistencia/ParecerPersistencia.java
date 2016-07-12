@@ -21,13 +21,13 @@ public class ParecerPersistencia implements ParecerRepository {
         gson = gsonBuilder.create();
     }
 
-    private void limpaBase(String collection) {
-        mongoPersistencia.limpaBase(collection);
-    }
-
     @Override
     public void adicionaNota(String parecer, Nota nota) {
-        Document document = mongoPersistencia.buscaJSON(parecerCollection, "id", parecer);
+        Document document = mongoPersistencia.busca(parecerCollection, "id", parecer);
+
+        if (document == null)
+            throw new IdentificadorDesconhecido("Objeto Nota não encontrado no parecer " + parecer);
+
         Parecer parecerAntigaInstacia = gson.fromJson(document.toJson(), Parecer.class);
 
         List<Nota> listaNotas = parecerAntigaInstacia.getNotas();
@@ -44,26 +44,38 @@ public class ParecerPersistencia implements ParecerRepository {
 
         String json = gson.toJson(parecerNovaInstancia);
 
-        mongoPersistencia.atualizaJSON(parecerCollection, "id", parecer, json);
+        mongoPersistencia.atualiza(parecerCollection, "id", parecer, json);
+
     }
 
     @Override
     public void removeNota(String id, Avaliavel original) {
-        Document parecer = mongoPersistencia.buscaJSON(parecerCollection, "id", id);
-        Document filtro = Document.parse(gson.toJson(new Document("$pull", new Document("notas", new Document("original", original)))));
+        Document parecer = mongoPersistencia.busca(parecerCollection, "id", id);
+        Document filtro = new Document("$pull", new Document("notas", new Document("original", Document.parse(gson.toJson(original)))));
 
         mongoPersistencia.atualizaDocumentUsandoFiltro(parecerCollection, parecer, filtro);
     }
 
     @Override
     public void persisteParecer(Parecer parecer) {
+        Document document = mongoPersistencia.busca(parecerCollection, "id", parecer.getId());
+
+        if (document != null)
+            throw new IdentificadorExistente("Já existe um parecer com esse identificador!");
+
+
         String json = gson.toJson(parecer);
-        mongoPersistencia.persisteJSON(parecerCollection, json);
+        mongoPersistencia.persiste(parecerCollection, json);
     }
 
     @Override
     public void atualizaFundamentacao(String parecer, String fundamentacao) {
-        Document document = mongoPersistencia.buscaJSON(parecerCollection, "id", parecer);
+        Document document = mongoPersistencia.busca(parecerCollection, "id", parecer);
+
+        if (document == null)
+            throw new IdentificadorDesconhecido("Não existe um parecer com este identificador.");
+
+
         Parecer parecerAntigaInstacia = gson.fromJson(document.toJson(), Parecer.class);
 
         Parecer parecerNovaInstancia = new Parecer(
@@ -77,35 +89,71 @@ public class ParecerPersistencia implements ParecerRepository {
 
         String json = gson.toJson(parecerNovaInstancia);
 
-        mongoPersistencia.atualizaJSON(parecerCollection, "id", parecer, json);
+        mongoPersistencia.atualiza(parecerCollection, "id", parecer, json);
+
     }
 
     @Override
     public Parecer byId(String id) {
-        Document document = mongoPersistencia.buscaJSON(parecerCollection, "id", id);
+        Document document = mongoPersistencia.busca(parecerCollection, "id", id);
+
+        if (document == null)
+            return null;
+
+        document = mongoPersistencia.busca(parecerCollection, "id", id);
         return gson.fromJson(gson.toJson(document), Parecer.class);
     }
 
     @Override
     public void removeParecer(String id) {
-        mongoPersistencia.deletaJSON(parecerCollection, "id", id);
+        mongoPersistencia.deleta(parecerCollection, "id", id);
     }
 
     @Override
     public Radoc radocById(String identificador) {
-        Document document = mongoPersistencia.buscaJSON(radocCollection, "id", identificador);
-        return gson.fromJson(document.toJson(), Radoc.class);
+        Document document = mongoPersistencia.busca(radocCollection, "id", identificador);
+
+        if (document == null)
+            return null;
+
+        document = mongoPersistencia.busca(radocCollection, "id", identificador);
+        return gson.fromJson(gson.toJson(document), Radoc.class);
+
     }
 
     @Override
     public String persisteRadoc(Radoc radoc) {
+        Document document;
+
+        document = mongoPersistencia.busca(radocCollection, "id", radoc.getId());
+
+        if (document != null)
+            throw new IdentificadorExistente("Radoc de id " + radoc.getId() + " já existe!");
+
         String json = gson.toJson(radoc);
-        mongoPersistencia.persisteJSON(radocCollection, json);
+        mongoPersistencia.persiste(radocCollection, json);
+
+        document = mongoPersistencia.busca(radocCollection, "id", radoc.getId());
+        if (document != null) {
+            return gson.fromJson(gson.toJson(document), Radoc.class).getId();
+        }
         return null;
+
     }
 
     @Override
     public void removeRadoc(String identificador) {
-        mongoPersistencia.deletaJSON(radocCollection, "id", identificador);
+        if (!validaSeExisteParecerReferenciaRadoc(identificador)) {
+            mongoPersistencia.deleta(radocCollection, "id", identificador);
+        } else {
+            throw new ExisteParecerReferenciandoRadoc("Existe um parecer referenciando o radoc " + identificador);
+        }
+    }
+
+    private boolean validaSeExisteParecerReferenciaRadoc(String identificador) {
+
+        if (mongoPersistencia.busca(parecerCollection, "id", identificador) == null)
+            return false;
+        return true;
     }
 }

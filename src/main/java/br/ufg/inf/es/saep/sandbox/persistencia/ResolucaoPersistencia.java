@@ -102,13 +102,11 @@ public class ResolucaoPersistencia implements ResolucaoRepository {
     public List<Tipo> tiposPeloNome(String nome) {
         ArrayList<Tipo> listaTipo = new ArrayList<>();
 
-        for (Document document : mongoPersistencia.encontraTodosDocumentsPorFiltro(tipoCollection, "nome", nome)) {
+        for (Document document : mongoPersistencia.encontraTodosDocumentsPorFiltro(tipoCollection, nome, "nome")) {
             String tipoJson = document.toJson();
             listaTipo.add(gson.fromJson(tipoJson, Tipo.class));
         }
 
         return listaTipo;
-
-
     }
 }

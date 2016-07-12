@@ -1,6 +1,5 @@
 package br.ufg.inf.es.saep.sandbox.persistencia;
 
-import com.google.gson.Gson;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;

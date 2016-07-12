@@ -42,6 +42,17 @@ public class ParecerPersistenciaTest {
         Assert.assertEquals(quantidadeAntigaDeNotas + 1, quantidadeNovaDeNotas);
     }
 
+    @Test(expected = IdentificadorDesconhecido.class)
+    public void testaAdicionarNotaEmParecerInexistente() {
+
+        Parecer parecer = criaParecer();
+
+        Nota nota = criaNota();
+        parecerPersistencia.adicionaNota(parecer.getId(), nota);
+
+    }
+
+
     @Test
     public void testaRemoveNota() {
         Parecer parecer = criaParecer();
@@ -56,12 +67,30 @@ public class ParecerPersistenciaTest {
 
     }
 
+    @Test(expected = IdentificadorExistente.class)
+    public void testaPersisteParecerExistente() {
+
+        Parecer parecer1 = criaParecer();
+        Parecer parecer2 = criaParecer();
+
+        parecerPersistencia.persisteParecer(parecer1);
+        parecerPersistencia.persisteParecer(parecer2);
+
+    }
+
     @Test
     public void testaPersisteParecer() {
         Parecer parecer = criaParecer();
         parecerPersistencia.persisteParecer(parecer);
 
         Assert.assertTrue(banco.busca(nomeCollectionParecer, "id", "1").get("id").equals("1"));
+    }
+
+    @Test(expected = IdentificadorDesconhecido.class)
+    public void testaAdicionarFundamentacaoEmParecerInexistente() {
+        String fundamentacao = "teste";
+        parecerPersistencia.atualizaFundamentacao("1", fundamentacao);
+
     }
 
     @Test
@@ -72,6 +101,14 @@ public class ParecerPersistenciaTest {
         parecerBuscado = parecerPersistencia.byId("1");
 
         Assert.assertEquals(parecerDesejado.getId(), parecerBuscado.getId());
+
+    }
+
+    @Test(expected = ExisteParecerReferenciandoRadoc.class)
+    public void testaRemoverRadocReferenciadoPorUmParecer() {
+        parecerPersistencia.persisteRadoc(criaRadoc("1"));
+        parecerPersistencia.persisteParecer(criaParecer());
+        parecerPersistencia.removeRadoc("1");
 
     }
 
@@ -93,6 +130,13 @@ public class ParecerPersistenciaTest {
         Assert.assertEquals(radocDesejado.getId(), radocBuscado.getId());
 
     }
+
+    @Test(expected = IdentificadorExistente.class)
+    public void testaPersistirRadocJaExistente() {
+        parecerPersistencia.persisteRadoc(criaRadoc("1"));
+        parecerPersistencia.persisteRadoc(criaRadoc("1"));
+    }
+
 
     @Test
     public void testaPersisteRadoc() {
